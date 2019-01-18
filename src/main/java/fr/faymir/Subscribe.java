@@ -2,7 +2,7 @@ package fr.faymir;
 
 import fr.faymir.Model.ConnectedUsers;
 import fr.faymir.Model.Type;
-import fr.faymir.Model.User;
+import fr.faymir.Model.ServerUser;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.SerializationUtils;
 import org.json.JSONObject;
@@ -22,22 +22,34 @@ public class Subscribe {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String get(@DefaultValue(defaultUsername) @QueryParam("username") String username, @Context UriInfo uriInfo){
+        ConnectedUsers.updateUsersStatus();
         JSONObject obj = new JSONObject();
         System.out.println("username = [" + username + "], uriInfo = [" + uriInfo.getRequestUri().getQuery() + "]");
+        obj.put("Type", Type.BAD_USERNAME);
         if (uriInfo.getQueryParameters().size() == 0 || username.equals(defaultUsername)) {
-            obj.put("Type", Type.BAD_USERNAME);
             obj.put("message", "No username provided");
         }
         else if(ConnectedUsers.contains(username)){
-            obj.put("Type", Type.BAD_USERNAME);
             obj.put("message", "Username already exist");
         }
+        else if(username.isEmpty()){
+                obj.put("message", "Empty username not allowed");
+        }
+        else if(username.equals("delete")){
+            ConnectedUsers.connectedServerUsers.clear();
+            obj.put("message", "User list Cleared");
+        }
         else{
-            ConnectedUsers.add(new User(grizzlyRequest.get().getRemoteAddr(), true, username, UUID.randomUUID().toString()));
+            String uuid = UUID.randomUUID().toString();
+            ConnectedUsers.add(new ServerUser(grizzlyRequest.get().getRemoteAddr(), true, username, uuid));
             obj.put("Type", Type.GOOD_USERNAME);
-            obj.put("number", ConnectedUsers.connectedUsers.size());
+            obj.put("usersNumber", ConnectedUsers.connectedServerUsers.size());
             obj.put("message", "ok");
-            obj.put("users", Base64.encodeBase64String(SerializationUtils.serialize(ConnectedUsers.connectedUsers)));
+            obj.put("uniqueId", uuid);
+            obj.put("users", ConnectedUsers.connectedServerUsers);
+//            System.out.println("users = [" + (SerializationUtils.serialize(ConnectedUsers.connectedServerUsers)) + "]");
+//            System.out.println("byte array = [" + SerializationUtils.serialize(ConnectedUsers.connectedServerUsers) + "]");
+//            byte[] base64Decoded = DatatypeConverter.parseBase64Binary(base64Encoded);
         }
         return obj.toString();
     }

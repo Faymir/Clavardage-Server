@@ -4,20 +4,45 @@ import java.io.Serializable;
 import java.util.Vector;
 
 public class ConnectedUsers implements Serializable {
-    public static Vector<User> connectedUsers = new Vector<>();
+    public static Vector<ServerUser> connectedServerUsers = new Vector<>();
+    public static long timeout = 15000;
 
-
-    public static void add(User user){
-        connectedUsers.add(user);
+    public static void resetUserTimer(String id){
+        connectedServerUsers.forEach( u -> {
+            if(u.getUniqueId().equals(id))
+                u.resetTimer();
+        });
     }
 
-    public static boolean remove(User user){
-        return connectedUsers.remove(user);
+    public static void updateUsersStatus(){
+        connectedServerUsers.forEach( u -> {
+            u.updateOnlineStatus(timeout);
+        });
+    }
+
+    public static Vector<ServerUser> get(){
+        return connectedServerUsers;
+    }
+
+    public static void add(ServerUser serverUser){
+        connectedServerUsers.add(serverUser);
+    }
+
+    public static boolean remove(ServerUser serverUser){
+        return connectedServerUsers.remove(serverUser);
     }
 
     public static boolean contains(String username){
-        for (User connectedUser : connectedUsers) {
-            if (connectedUser.getUsername().equalsIgnoreCase(username))
+        for (ServerUser connectedServerUser : connectedServerUsers) {
+            if (connectedServerUser.getUsername().equalsIgnoreCase(username))
+                return true;
+        }
+        return false;
+    }
+
+    public static boolean idExist(String uniqueId){
+        for (ServerUser connectedServerUser : connectedServerUsers) {
+            if (connectedServerUser.getUniqueId().equalsIgnoreCase(uniqueId))
                 return true;
         }
         return false;

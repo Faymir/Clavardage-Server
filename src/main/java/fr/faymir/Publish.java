@@ -1,36 +1,51 @@
 package fr.faymir;
 
+import fr.faymir.Model.ConnectedUsers;
+import fr.faymir.Model.ScanMessage;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.UriInfo;
 
 /**
  * Root resource (exposed at "test" path)
  */
 @Path("publish")
 public class Publish {
-    private static int a = 0;
-    private int b = 0;
+    private static final String defaultData = "#$#%$%%&&dsfduhsi$%*⁽";
     @Inject
     private javax.inject.Provider<org.glassfish.grizzly.http.server.Request> grizzlyRequest;
-    /**
-     * Method handling HTTP GET requests. The returned object will be sent
-     * to the client as "text/plain" media type.
-     *
-     * @return String that will be returned as a text/plain response.
-     */
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    public String getIt() {
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    public String post(String data, @Context UriInfo uriInfo){
 
-        b++;
-        count();
-        return "A = " + a + " b = " + b + "\tGot it! " + grizzlyRequest.get().getRemoteAddr();
-    }
+        if (!data.contains("uniqueId")) throw new UnauthorizedException();
 
-    private static void count(){
-        a++;
+        JSONObject infos = new JSONObject(data);
+        if (!ConnectedUsers.idExist(infos.getString("uniqueId")))   throw new UnauthorizedException();
+
+            try{
+                ConnectedUsers.resetUserTimer(infos.getString("uniqueId"));
+            }
+            catch (JSONException e){
+                e.printStackTrace();
+                return new JSONObject("{\"Type\": \"error\", \"message\":\"invalid request\"}").toString();
+            }
+        System.out.println("data = [" + data + "], uriInfo = [" + uriInfo + "]");
+
+        ConnectedUsers.updateUsersStatus();
+        MultivaluedMap<String, String> params= uriInfo.getQueryParameters();
+        System.out.println("data = [" + data + "], uriInfo = [" + uriInfo.getRequestUri() + "]");
+        JSONObject obj = new JSONObject();
+        obj
+            .put("Type", ScanMessage.ScanType.RETURN_INFORMATION)
+            .put("message", "ok")
+            .put("users", ConnectedUsers.get());
+        return obj.toString();
     }
 }

@@ -10,6 +10,12 @@ import java.net.URI;
 /**
  * Main class.
  *
+ *
+ *  * subscribe 	=> to the server
+ *  * publish		=> their status
+ *  * notify		=> in case of any changes
+ *  *
+ *
  */
 public class Main {
     // Base URI the Grizzly HTTP server will listen on
