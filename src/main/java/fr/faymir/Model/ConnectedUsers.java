@@ -5,7 +5,7 @@ import java.util.Vector;
 
 public class ConnectedUsers implements Serializable {
     public static Vector<ServerUser> connectedServerUsers = new Vector<>();
-    public static long timeout = 15000;
+    public static long timeout = 10000;
 
     public static void resetUserTimer(String id){
         connectedServerUsers.forEach( u -> {

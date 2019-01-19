@@ -1,5 +1,8 @@
 package fr.faymir;
 
+import fr.faymir.Model.ConnectedUsers;
+import fr.faymir.Model.Database;
+import fr.faymir.Model.ServerUser;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -19,7 +22,7 @@ import java.net.URI;
  */
 public class Main {
     // Base URI the Grizzly HTTP server will listen on
-    public static final String BASE_URI = "http://localhost:8080/myapp/";
+    public static final String BASE_URI = "http://192.168.1.101:8080/myapp/";
 
     /**
      * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
@@ -42,10 +45,17 @@ public class Main {
      */
     public static void main(String[] args) throws IOException {
         final HttpServer server = startServer();
+        ConnectedUsers.connectedServerUsers = Database.getInstance().selectAll();
         System.out.println(String.format("Jersey app started with WADL available at "
                 + "%sapplication.wadl\nHit enter to stop it...", BASE_URI));
         System.in.read();
         server.shutdown();
+        for(ServerUser u: ConnectedUsers.connectedServerUsers){
+            if(Database.getInstance().checkUserExist(u.getUniqueId()))
+                Database.getInstance().update(u.getUsername(), u);
+            else
+                Database.getInstance().insert(u);
+        }
     }
 }
 

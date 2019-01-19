@@ -19,6 +19,11 @@ public class ServerUser implements Comparable<ServerUser>, Serializable {
         this.uniqueId = uniqueId;
     }
 
+    public ServerUser(String ip, boolean online, String username, String uniqueId, long lastSeen){
+        this(ip, online, username, uniqueId);
+        this.lastSeen = lastSeen;
+    }
+
     public String getUsername() {
         return username;
     }
@@ -35,6 +40,14 @@ public class ServerUser implements Comparable<ServerUser>, Serializable {
     @JSONPropertyIgnore
     public String getUniqueId() {
         return uniqueId;
+    }
+
+    public long getLastSeen() {
+        return lastSeen;
+    }
+
+    public void setLastSeen(long lastSeen) {
+        this.lastSeen = lastSeen;
     }
 
     public void setUniqueId(String uniqueId) {
