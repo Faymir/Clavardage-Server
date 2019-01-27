@@ -7,6 +7,8 @@ import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
+import javax.ws.rs.ApplicationPath;
+import javax.ws.rs.core.Application;
 import java.io.IOException;
 import java.net.URI;
 
@@ -20,9 +22,10 @@ import java.net.URI;
  *  *
  *
  */
-public class Main {
+@ApplicationPath("rest") // set the path to REST web services
+public class Main extends Application {
     // Base URI the Grizzly HTTP server will listen on
-    public static final String BASE_URI = "http://192.168.1.101:8080/myapp/";
+    public static final String BASE_URI = "http://192.168.1.101:8080/";
 
     /**
      * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.

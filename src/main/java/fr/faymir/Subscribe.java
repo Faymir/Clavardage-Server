@@ -3,8 +3,6 @@ package fr.faymir;
 import fr.faymir.Model.ConnectedUsers;
 import fr.faymir.Model.Type;
 import fr.faymir.Model.ServerUser;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.SerializationUtils;
 import org.json.JSONObject;
 
 import javax.inject.Inject;
