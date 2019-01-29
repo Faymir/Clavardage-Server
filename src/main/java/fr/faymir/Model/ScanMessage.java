@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 
 public class ScanMessage implements Serializable {
@@ -11,7 +13,9 @@ public class ScanMessage implements Serializable {
         DISCOVER("DISCOVERING NETWORK"),
         RETURN_INFORMATION("Return clients information to new user with is version number"),
         UPDATE_INFORMATION("Return new user information"),
-        DISCONNECT("This user Disconnected");
+        DISCONNECT("This user Disconnected"),
+        CHANGE_USER_NAME("This user changed his username");
+
         private String msg;
 
         private ScanType(String msg){
@@ -25,17 +29,13 @@ public class ScanMessage implements Serializable {
     public String newUsername;
     public String ip;
     public String uniqueID;
+    public String oldUsername;
 
     public ScanMessage(ScanType type) {
         this.type = type;
         clients = new HashMap<>();
         newUserVersion = 0;
-        try(final DatagramSocket socket = new DatagramSocket()){
-            socket.connect(InetAddress.getByName("255.255.255.255"), 30000);
-            ip = socket.getLocalAddress().getHostAddress();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        ip = getIp();
 
     }
 
@@ -54,5 +54,15 @@ public class ScanMessage implements Serializable {
         this(type);
         this.newUserVersion = newUserVersion;
         this.newUsername = newUsername;
+    }
+    
+    public static String getIp() {
+    	try(final DatagramSocket socket = new DatagramSocket()){
+            socket.connect(InetAddress.getByName("255.255.255.255"), 30000);
+            return socket.getLocalAddress().getHostAddress();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    	return "";
     }
 }
